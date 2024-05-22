@@ -5,7 +5,7 @@ import Service from '@ember/service';
 import { getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills'
 import { Promise, resolve, reject } from 'rsvp';
-import { run } from '@ember/runloop';
+import { next } from '@ember/runloop';
 
 export default Service.extend(Evented, {
   fbInitPromise: null,
@@ -36,7 +36,7 @@ export default Service.extend(Evented, {
     this.fbInitPromise = new Promise(function(resolve){
       window.fbAsyncInit = function() {
         window.FB.init(initSettings);
-        run.next(null, resolve);
+        next(null, resolve);
       };
       // URL for the SDK is built according to locale. Defaults to `en_US`.
       $.getScript(`https://connect.facebook.net/${locale}/sdk.js`, function() {
@@ -93,11 +93,11 @@ export default Service.extend(Evented, {
       return new Promise(function(resolve, reject) {
         window.FB.api(path, method, parameters, function(response) {
           if (response.error) {
-            run.next(null, reject, response.error);
+            next(null, reject, response.error);
             return;
           }
 
-          run.next(null, resolve, response);
+          next(null, resolve, response);
         });
       });
     });
@@ -124,11 +124,11 @@ export default Service.extend(Evented, {
       return new Promise(function(resolve, reject) {
         window.FB.ui(params, function(response) {
           if (response && !response.error_code) {
-            run.next(null, resolve, response);
+            next(null, resolve, response);
             return;
           }
 
-          run.next(null, reject, response);
+          next(null, reject, response);
         });
       });
     });
@@ -140,7 +140,7 @@ export default Service.extend(Evented, {
     return this.FBInit().then(function() {
       return new Promise(function(resolve) {
         window.FB.getLoginStatus(function(response) {
-          run.next(null, resolve, response);
+          next(null, resolve, response);
         }, forceRequest);
       });
     });
@@ -160,9 +160,9 @@ export default Service.extend(Evented, {
         window.FB.login(function(response) {
           if (response.authResponse) {
             service.accessToken = response.authResponse.accessToken;
-            run.next(null, resolve, response);
+            next(null, resolve, response);
           } else {
-            run.next(null, reject, response);
+            next(null, reject, response);
           }
         }, params);
       });
@@ -173,7 +173,7 @@ export default Service.extend(Evented, {
     return this.FBInit().then(function() {
       return new Promise(function(resolve) {
         window.FB.logout(function(response) {
-          run.next(null, resolve, response);
+          next(null, resolve, response);
         });
       });
     });
@@ -187,7 +187,7 @@ export default Service.extend(Evented, {
     return this.FBInit().then(function() {
       return new Promise(function(resolve) {
         return window.FB.XFBML.parse(undefined, function() {
-          run.next(null, resolve, 'XFBML.parse');
+          next(null, resolve, 'XFBML.parse');
         });
       });
     });
